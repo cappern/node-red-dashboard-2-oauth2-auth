@@ -24,7 +24,7 @@
   "homepage": "https://github.com/cappern/node-red-dashboard-2-oauth2-auth#readme",
   "node-red": {
     "plugins": {
-      "node-red-dashboard-oauth2-proxy-auth": "index.js"
+      "node-red-dashboard-2-oauth2-auth": "index.js"
     }
   }
 }
