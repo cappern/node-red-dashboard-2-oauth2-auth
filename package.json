@@ -1,0 +1,30 @@
+{
+  "name": "@cappern/node-red-dashboard-2-oauth2-auth",
+  "version": "0.1.2",
+  "description": "OAuth2-Proxy based authentication plugin for node-red-dashboard-2",
+  "main": "index.js",
+  "keywords": [
+    "node-red",
+    "node-red-plugin",
+    "dashboard",
+    "oauth2",
+    "auth",
+    "oauth2-proxy",
+    "oidc"
+  ],
+  "author": "cappern",
+  "license": "AGPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cappern/node-red-dashboard-2-oauth2-auth.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cappern/node-red-dashboard-2-oauth2-auth/issues"
+  },
+  "homepage": "https://github.com/cappern/node-red-dashboard-2-oauth2-auth#readme",
+  "node-red": {
+    "plugins": {
+      "node-red-dashboard-oauth2-proxy-auth": "index.js"
+    }
+  }
+}
