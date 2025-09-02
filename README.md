@@ -1,5 +1,5 @@
 # @cappern/node-red-dashboard-2-oauth2-auth
-
+[![CI](https://github.com/cappern/node-red-dashboard-2-oauth2-auth/actions/workflows/ci.yml/badge.svg)](https://github.com/cappern/node-red-dashboard-2-oauth2-auth/actions/workflows/ci.yml)
 [![Node-RED](https://img.shields.io/badge/Node--RED-Dashboard%202-blue)](https://nodered.org)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL--3.0--or--later-blue.svg)](./LICENSE)
 
