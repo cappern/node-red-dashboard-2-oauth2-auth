@@ -26,5 +26,12 @@
     "plugins": {
       "node-red-dashboard-2-oauth2-auth": "index.js"
     }
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "devDependencies": {
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0"
   }
 }
