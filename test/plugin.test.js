@@ -26,6 +26,22 @@ describe('node-red-dashboard-2-oauth2-auth plugin', () => {
     expect(msg._client.proxy.jwt.name).to.equal('Alice');
   });
 
+  it('mirrors headers with flattened jwt claims to msg.headers', () => {
+    const hooks = setup({ allowedHeaders: ['x-forwarded-user'], mirrorToMsgHeaders: true });
+    const payload = { sub: '123', name: 'Alice' };
+    const token = 'x.' + Buffer.from(JSON.stringify(payload)).toString('base64url') + '.y';
+    const conn = { request: { headers: { 'x-forwarded-user': 'alice', 'x-forwarded-access-token': token } } };
+
+    const msg = hooks.onAddConnectionCredentials(conn, {});
+
+    expect(msg.headers['x-forwarded-user']).to.equal('alice');
+    expect(msg.headers['jwt-sub']).to.equal('123');
+    expect(msg.headers.jwt).to.be.undefined;
+    Object.keys(msg.headers).forEach(k => {
+      expect(['string', 'number', 'boolean']).to.include(typeof msg.headers[k]);
+    });
+  });
+
   it('onCanSaveInStore blocks messages with socketId', () => {
     const hooks = setup();
 
