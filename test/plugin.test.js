@@ -26,6 +26,28 @@ describe('node-red-dashboard-2-oauth2-auth plugin', () => {
     expect(msg._client.proxy.jwt.name).to.equal('Alice');
   });
 
+  it('decodes JWT payloads that require one padding character', () => {
+    const hooks = setup({ allowedJwtClaims: ['a'] });
+    const payload = { a: '' };
+    const token = 'x.' + Buffer.from(JSON.stringify(payload)).toString('base64url') + '.y';
+    const conn = { request: { headers: { 'x-forwarded-access-token': token } } };
+
+    const msg = hooks.onAddConnectionCredentials(conn, {});
+
+    expect(msg._client.proxy.jwt.a).to.equal('');
+  });
+
+  it('decodes JWT payloads that require two padding characters', () => {
+    const hooks = setup({ allowedJwtClaims: ['abc'] });
+    const payload = { abc: '' };
+    const token = 'x.' + Buffer.from(JSON.stringify(payload)).toString('base64url') + '.y';
+    const conn = { request: { headers: { 'x-forwarded-access-token': token } } };
+
+    const msg = hooks.onAddConnectionCredentials(conn, {});
+
+    expect(msg._client.proxy.jwt.abc).to.equal('');
+  });
+
   it('onCanSaveInStore blocks messages with socketId', () => {
     const hooks = setup();
 

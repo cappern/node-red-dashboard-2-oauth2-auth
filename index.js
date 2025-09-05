@@ -5,7 +5,9 @@ module.exports = function (RED) {
     try {
       const parts = token.split('.');
       if (parts.length < 2) return null;
-      const payload = Buffer.from(parts[1].replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
+      let b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+      b64 += '='.repeat((4 - (b64.length % 4)) % 4);
+      const payload = Buffer.from(b64, 'base64').toString('utf8');
       return JSON.parse(payload);
     } catch (e) {
       return null;
