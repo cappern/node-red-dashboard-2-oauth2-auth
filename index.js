@@ -47,14 +47,26 @@ module.exports = function (RED) {
   };
 
   // Helper to read config from settings.js
+  function asArray(value, def, name) {
+    if (value === undefined) return def;
+    if (Array.isArray(value)) return value;
+    const msg = `${pluginId}: ${name} must be an array`;
+    if (RED?.log?.warn) {
+      RED.log.warn(msg);
+    } else {
+      console.warn(msg); // eslint-disable-line no-console
+    }
+    return def;
+  }
+
   function readSettings() {
     const userCfg = RED?.settings?.plugins?.[pluginId] || {};
     return {
       ...defaults,
       ...userCfg,
-      allowedHeaders: (userCfg.allowedHeaders || defaults.allowedHeaders).map(h => String(h).toLowerCase()),
-      redactedHeaders: (userCfg.redactedHeaders || defaults.redactedHeaders).map(h => String(h).toLowerCase()),
-      allowedJwtClaims: (userCfg.allowedJwtClaims || defaults.allowedJwtClaims)
+      allowedHeaders: asArray(userCfg.allowedHeaders, defaults.allowedHeaders, 'allowedHeaders').map(h => String(h).toLowerCase()),
+      redactedHeaders: asArray(userCfg.redactedHeaders, defaults.redactedHeaders, 'redactedHeaders').map(h => String(h).toLowerCase()),
+      allowedJwtClaims: asArray(userCfg.allowedJwtClaims, defaults.allowedJwtClaims, 'allowedJwtClaims')
     };
   }
 
