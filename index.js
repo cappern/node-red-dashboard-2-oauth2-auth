@@ -97,6 +97,21 @@ module.exports = function (RED) {
     ref[pathArr[pathArr.length - 1]] = value;
   }
 
+  function mirrorHeadersToMsg(msg, headers, cfg) {
+    if (!cfg.mirrorToMsgHeaders) return;
+    const flat = { ...headers };
+    if (flat.jwt) {
+      Object.entries(flat.jwt).forEach(([k, v]) => {
+        const primitive = (v === null || ['string', 'number', 'boolean'].includes(typeof v))
+          ? v
+          : JSON.stringify(v);
+        flat[`jwt-${k}`] = primitive;
+      });
+      delete flat.jwt;
+    }
+    msg.headers = Object.assign({}, msg.headers, flat);
+  }
+
   RED.plugins.registerPlugin(pluginId, {
     type: 'node-red-dashboard-2',
     hooks: {
@@ -114,9 +129,7 @@ module.exports = function (RED) {
           msg._client = msg._client || {};
           attachDeep(msg._client, cfg.clientPath, headers);
 
-          if (cfg.mirrorToMsgHeaders) {
-            msg.headers = Object.assign({}, msg.headers, headers);
-          }
+          mirrorHeadersToMsg(msg, headers, cfg);
         } catch (e) {
           // Never throw; just annotate error and continue
           msg._client = msg._client || {};
@@ -133,9 +146,7 @@ module.exports = function (RED) {
           const headers = pickHeaders(conn?.request?.headers || {}, cfg);
           msg._client = msg._client || {};
           attachDeep(msg._client, cfg.clientPath, headers);
-          if (cfg.mirrorToMsgHeaders) {
-            msg.headers = Object.assign({}, msg.headers, headers);
-          }
+          mirrorHeadersToMsg(msg, headers, cfg);
         } catch (e) {
           msg._client = msg._client || {};
           msg._client[pluginId] = { error: String((e && e.message) || e) };
@@ -149,9 +160,7 @@ module.exports = function (RED) {
           const headers = pickHeaders(conn?.request?.headers || {}, cfg);
           msg._client = msg._client || {};
           attachDeep(msg._client, cfg.clientPath, headers);
-          if (cfg.mirrorToMsgHeaders) {
-            msg.headers = Object.assign({}, msg.headers, headers);
-          }
+          mirrorHeadersToMsg(msg, headers, cfg);
         } catch (e) {
           msg._client = msg._client || {};
           msg._client[pluginId] = { error: String((e && e.message) || e) };
@@ -165,9 +174,7 @@ module.exports = function (RED) {
           const headers = pickHeaders(conn?.request?.headers || {}, cfg);
           msg._client = msg._client || {};
           attachDeep(msg._client, cfg.clientPath, headers);
-          if (cfg.mirrorToMsgHeaders) {
-            msg.headers = Object.assign({}, msg.headers, headers);
-          }
+          mirrorHeadersToMsg(msg, headers, cfg);
         } catch (e) {
           msg._client = msg._client || {};
           msg._client[pluginId] = { error: String((e && e.message) || e) };
