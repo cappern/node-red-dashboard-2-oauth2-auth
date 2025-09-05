@@ -97,83 +97,33 @@ module.exports = function (RED) {
     ref[pathArr[pathArr.length - 1]] = value;
   }
 
+  function applyProxyHeaders(conn, msg) {
+    msg = msg || {};
+    try {
+      const cfg = readSettings();
+      const headers = pickHeaders(conn?.request?.headers || {}, cfg);
+      msg._client = msg._client || {};
+      attachDeep(msg._client, cfg.clientPath, headers);
+      if (cfg.mirrorToMsgHeaders) {
+        msg.headers = Object.assign({}, msg.headers, headers);
+      }
+    } catch (e) {
+      msg._client = msg._client || {};
+      msg._client[pluginId] = { error: String((e && e.message) || e) };
+    }
+    return msg;
+  }
+
   RED.plugins.registerPlugin(pluginId, {
     type: 'node-red-dashboard-2',
     hooks: {
-
-      
-
-
       // Attach proxy info to msg._client right before messages leave Dashboard to flows
-      onAddConnectionCredentials: (conn, msg) => {
-        msg = msg || {};
-        try {
-          const cfg = readSettings();
-          const headers = pickHeaders(conn?.request?.headers || {}, cfg);
-
-          msg._client = msg._client || {};
-          attachDeep(msg._client, cfg.clientPath, headers);
-
-          if (cfg.mirrorToMsgHeaders) {
-            msg.headers = Object.assign({}, msg.headers, headers);
-          }
-        } catch (e) {
-          // Never throw; just annotate error and continue
-          msg._client = msg._client || {};
-          msg._client[pluginId] = { error: String(e && e.message || e) };
-        }
-        return msg;
-      },
+      onAddConnectionCredentials: (conn, msg) => applyProxyHeaders(conn, msg),
 
       // Also ensure actions/changes/loads contain proxy data (useful for initial widget-load events)
-      onAction: (conn, id, msg) => {
-        msg = msg || {};
-        try {
-          const cfg = readSettings();
-          const headers = pickHeaders(conn?.request?.headers || {}, cfg);
-          msg._client = msg._client || {};
-          attachDeep(msg._client, cfg.clientPath, headers);
-          if (cfg.mirrorToMsgHeaders) {
-            msg.headers = Object.assign({}, msg.headers, headers);
-          }
-        } catch (e) {
-          msg._client = msg._client || {};
-          msg._client[pluginId] = { error: String((e && e.message) || e) };
-        }
-        return msg;
-      },
-      onChange: (conn, id, msg) => {
-        msg = msg || {};
-        try {
-          const cfg = readSettings();
-          const headers = pickHeaders(conn?.request?.headers || {}, cfg);
-          msg._client = msg._client || {};
-          attachDeep(msg._client, cfg.clientPath, headers);
-          if (cfg.mirrorToMsgHeaders) {
-            msg.headers = Object.assign({}, msg.headers, headers);
-          }
-        } catch (e) {
-          msg._client = msg._client || {};
-          msg._client[pluginId] = { error: String((e && e.message) || e) };
-        }
-        return msg;
-      },
-      onLoad: (conn, id, msg) => {
-        msg = msg || {};
-        try {
-          const cfg = readSettings();
-          const headers = pickHeaders(conn?.request?.headers || {}, cfg);
-          msg._client = msg._client || {};
-          attachDeep(msg._client, cfg.clientPath, headers);
-          if (cfg.mirrorToMsgHeaders) {
-            msg.headers = Object.assign({}, msg.headers, headers);
-          }
-        } catch (e) {
-          msg._client = msg._client || {};
-          msg._client[pluginId] = { error: String((e && e.message) || e) };
-        }
-        return msg;
-      },
+      onAction: (conn, id, msg) => applyProxyHeaders(conn, msg),
+      onChange: (conn, id, msg) => applyProxyHeaders(conn, msg),
+      onLoad: (conn, id, msg) => applyProxyHeaders(conn, msg),
 
       // Optional: avoid storing per-client messages containing socket-bound targeting
       onCanSaveInStore: (msg) => {
@@ -181,4 +131,6 @@ module.exports = function (RED) {
       }
     }
   });
+
+  return { applyProxyHeaders };
 };

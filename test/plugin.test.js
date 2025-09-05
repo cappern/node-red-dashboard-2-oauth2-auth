@@ -7,18 +7,18 @@ function setup(userSettings = {}) {
     plugins: { registerPlugin: (_id, def) => { registered = def; } }
   };
   delete require.cache[require.resolve('..')];
-  require('..')(RED);
-  return registered.hooks;
+  const exported = require('..')(RED);
+  return { hooks: registered.hooks, applyProxyHeaders: exported.applyProxyHeaders };
 }
 
 describe('node-red-dashboard-2-oauth2-auth plugin', () => {
-  it('attaches allowed headers, redacts sensitive ones, and decodes JWT claims', () => {
-    const hooks = setup({ allowedHeaders: ['x-forwarded-user', 'cookie'] });
+  it('applyProxyHeaders attaches allowed headers, redacts sensitive ones, and decodes JWT claims', () => {
+    const { applyProxyHeaders } = setup({ allowedHeaders: ['x-forwarded-user', 'cookie'] });
     const payload = { sub: '123', name: 'Alice' };
     const token = 'x.' + Buffer.from(JSON.stringify(payload)).toString('base64url') + '.y';
     const conn = { request: { headers: { 'x-forwarded-user': 'alice', cookie: 'secret', 'x-forwarded-access-token': token } } };
 
-    const msg = hooks.onAddConnectionCredentials(conn, {});
+    const msg = applyProxyHeaders(conn, {});
 
     expect(msg._client.proxy['x-forwarded-user']).to.equal('alice');
     expect(msg._client.proxy.cookie).to.equal('__REDACTED__');
@@ -27,7 +27,7 @@ describe('node-red-dashboard-2-oauth2-auth plugin', () => {
   });
 
   it('onCanSaveInStore blocks messages with socketId', () => {
-    const hooks = setup();
+    const { hooks } = setup();
 
     expect(hooks.onCanSaveInStore({ _client: { socketId: 'abc' } })).to.be.false;
     expect(hooks.onCanSaveInStore({})).to.be.true;
