@@ -55,6 +55,10 @@ Restart Node-RED after installation.
 }
 ```
 
+### Traefik example
+
+See [examples/traefik](./examples/traefik) for a Docker Compose configuration that runs Node-RED Dashboard 2 behind Traefik and `oauth2-proxy`.
+
 ---
 
 ## 📜 License
