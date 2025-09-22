@@ -14,7 +14,7 @@ It extracts user information from the HTTP headers added by oauth2-proxy and mak
 - Supports common oauth2-proxy headers:
   - `x-auth-request-user`, `x-forwarded-user`
   - `x-auth-request-email`, `x-forwarded-email`
-  - `x-auth-request-preferred-username`
+  - `x-auth-request-preferred-username`, `x-forwarded-preferred-username`
 - Adds `socketId` and `socketIp` to help trace individual client sessions
 - Prevents unauthenticated users from interacting with flows (configurable in hook `onIsValidConnection`)
 
@@ -54,6 +54,34 @@ Restart Node-RED after installation.
   }
 }
 ```
+
+---
+
+## ⚙️ Configuration (optional)
+
+All behaviour can be tuned from your `settings.js` file:
+
+```js
+module.exports = {
+  plugins: {
+    'node-red-dashboard-2-oauth2-auth': {
+      // Set to false to allow unauthenticated access
+      requireAuth: true,
+      // Headers (case-insensitive) that must be present when requireAuth is true
+      requiredAuthHeaders: [
+        'x-auth-request-user',
+        'x-forwarded-user'
+      ],
+      // Where to attach the proxy data inside msg._client
+      clientPath: ['proxy'],
+      // Mirror data into msg.headers as well
+      mirrorToMsgHeaders: false
+    }
+  }
+};
+```
+
+All header names are normalised to lowercase and you can pass single values or arrays in the configuration.
 
 ---
 

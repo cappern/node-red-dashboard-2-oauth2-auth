@@ -32,4 +32,24 @@ describe('node-red-dashboard-2-oauth2-auth plugin', () => {
     expect(hooks.onCanSaveInStore({ _client: { socketId: 'abc' } })).to.be.false;
     expect(hooks.onCanSaveInStore({})).to.be.true;
   });
+
+  it('onIsValidConnection enforces authentication by default', () => {
+    const hooks = setup();
+
+    expect(hooks.onIsValidConnection({ request: { headers: {} } })).to.be.false;
+    expect(
+      hooks.onIsValidConnection({ request: { headers: { 'X-Auth-Request-User': 'alice' } } })
+    ).to.be.true;
+  });
+
+  it('onIsValidConnection can be configured via settings', () => {
+    const hooks = setup({ requireAuth: false });
+    expect(hooks.onIsValidConnection({ request: { headers: {} } })).to.be.true;
+
+    const customHooks = setup({ requiredAuthHeaders: 'x-custom-user' });
+    expect(customHooks.onIsValidConnection({ request: { headers: {} } })).to.be.false;
+    expect(
+      customHooks.onIsValidConnection({ request: { headers: { 'X-Custom-User': 'bob' } } })
+    ).to.be.true;
+  });
 });
